@@ -1189,6 +1189,31 @@ canvas {
           <input type="range" id="rBlack" min="0" max="40" value="5" oninput="syncSlider(this,'vBlack',''); onParamChange()">
         </div>
       </div>
+
+      <!-- Output Quality — shared -->
+      <div style="border-top:1px solid var(--border-subtle);margin-top:13px;padding-top:13px">
+        <div style="font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px" data-t="secOutput">Output Quality</div>
+        <div class="ctrl">
+          <div class="ctrl-lbl"><span><span data-t="lblFeather">Alpha Feather</span><button class="help-btn" onclick="showHelp('feather',this)">?</button></span><span class="ctrl-val" id="vFeather">0px</span></div>
+          <input type="range" id="rFeather" min="0" max="8" step="0.5" value="0" oninput="syncSlider(this,'vFeather','px'); onParamChange()">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl"><span><span data-t="lblSatBoost">Saturation Boost</span><button class="help-btn" onclick="showHelp('satBoost',this)">?</button></span><span class="ctrl-val" id="vSatBoost">0%</span></div>
+          <input type="range" id="rSatBoost" min="0" max="200" value="0" oninput="syncSlider(this,'vSatBoost','%'); onParamChange()">
+        </div>
+        <div class="ctrl" id="defringeCtrl">
+          <div class="ctrl-lbl"><span><span data-t="lblDefringe">Defringe</span><button class="help-btn" onclick="showHelp('defringe',this)">?</button></span><span class="ctrl-val" id="vDefringe">0%</span></div>
+          <input type="range" id="rDefringe" min="0" max="100" value="0" oninput="syncSlider(this,'vDefringe','%'); onParamChange()">
+        </div>
+        <div class="ctrl" id="linearLightCtrl" style="display:none">
+          <div class="ctrl-lbl" style="margin-bottom:0">
+            <span><span data-t="lblLinear">Linear Light</span><button class="help-btn" onclick="showHelp('linearLight',this)">?</button></span>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
+              <input type="checkbox" id="chkLinear" onchange="onParamChange()" style="accent-color:var(--accent);width:14px;height:14px;cursor:pointer">
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div><!-- /left-panel -->
@@ -1332,6 +1357,9 @@ const LANG = {
     lblStrength: 'Strength', lblThreshold: 'Threshold', lblMatte: 'Matte Removal',
     lblGStr: 'Strength', lblGamma: 'Alpha Gamma', lblPGlow: 'Preserve Soft Glow',
     lblBlack: 'Black Cleanup',
+    secOutput: 'Output Quality',
+    lblFeather: 'Alpha Feather', lblSatBoost: 'Saturation Boost',
+    lblDefringe: 'Defringe', lblLinear: 'Linear Light',
     ready: 'Ready', processing: 'Processing…', exported: 'Exported PNG', imageLoaded: 'Image loaded',
     help: {
       strength:  { title: 'Strength',           text: 'How strongly the effect is extracted. 100% = normal. Lower values fade the result; higher values boost it.' },
@@ -1342,6 +1370,10 @@ const LANG = {
       pGlow:     { title: 'Preserve Soft Glow', text: 'Blends between unpremultiplied colors (sharp, saturated) and original colors (soft, natural). Higher = softer glow feel.' },
       gThr:      { title: 'Threshold',          text: 'Minimum alpha value for glow pixels. Helps cut dim noise from the glow edges.' },
       black:     { title: 'Black Cleanup',      text: 'Cuts out near-black pixels — useful when the source had a pure black background with subtle imperfections.' },
+      feather:   { title: 'Alpha Feather',      text: 'Gaussian blur applied to the alpha channel after extraction. Softens hard alpha edges — greatly improves how the result composites on any background.' },
+      satBoost:  { title: 'Saturation Boost',   text: 'Boosts color saturation of the extracted pixels while preserving luminance. Compensates for the slight desaturation that occurs during matte extraction.' },
+      defringe:  { title: 'Defringe',           text: 'Removes residual background color from semi-transparent edge pixels. Eliminates dark halos when compositing on bright or colored backgrounds.' },
+      linearLight: { title: 'Linear Light',     text: 'Processes luminance in linear (physically correct) light space before extraction. Produces more accurate alpha for additive glow effects at high brightness values.' },
     }
   },
   ru: {
@@ -1350,6 +1382,9 @@ const LANG = {
     lblStrength: 'Сила', lblThreshold: 'Порог', lblMatte: 'Удаление матта',
     lblGStr: 'Сила', lblGamma: 'Гамма альфа-канала', lblPGlow: 'Мягкое свечение',
     lblBlack: 'Очистка чёрного',
+    secOutput: 'Качество вывода',
+    lblFeather: 'Размытие краёв', lblSatBoost: 'Насыщенность',
+    lblDefringe: 'Удаление ореола', lblLinear: 'Линейный свет',
     ready: 'Готово', processing: 'Обработка…', exported: 'PNG экспортирован', imageLoaded: 'Изображение загружено',
     help: {
       strength:  { title: 'Сила',                   text: 'Интенсивность извлечения. 100% — стандартное извлечение. Уменьшите для прозрачности, увеличьте для усиления.' },
@@ -1360,6 +1395,10 @@ const LANG = {
       pGlow:     { title: 'Мягкое свечение',        text: 'Смешивает чистые (резкие, насыщенные) и оригинальные (мягкие) цвета. Выше = естественнее свечение.' },
       gThr:      { title: 'Порог',                  text: 'Минимальное значение альфа для пикселей свечения. Убирает тусклый шум по краям.' },
       black:     { title: 'Очистка чёрного',        text: 'Удаляет почти чёрные пиксели — полезно, когда источник имел чёрный фон с небольшими артефактами.' },
+      feather:   { title: 'Размытие краёв',         text: 'Gaussian-размытие альфа-канала после извлечения. Смягчает резкие края — значительно улучшает compositor на любом фоне.' },
+      satBoost:  { title: 'Насыщенность',           text: 'Усиливает насыщенность цветов при сохранении яркости. Компенсирует небольшую потерю насыщенности, возникающую при извлечении матта.' },
+      defringe:  { title: 'Удаление ореола',        text: 'Убирает остаточный цвет фона из полупрозрачных пикселей по краям. Устраняет тёмный ореол при компоузинге на светлом или цветном фоне.' },
+      linearLight: { title: 'Линейный свет',        text: 'Обрабатывает яркость в линейном (физически корректном) цветовом пространстве. Даёт более точную альфу для аддитивного свечения при высокой яркости.' },
     }
   }
 };
@@ -1446,6 +1485,11 @@ const S = {
   resultBgType: 'checker', // 'checker' | 'color' | 'image'
   resultBgColor: '#1a1a2e',
   resultBgImgData: null,
+  // Output quality
+  feather: 0,
+  satBoost: 0,
+  defringe: 0,
+  linearLight: false,
   // Output
   resultID: null,
   blendID: null,
@@ -1494,6 +1538,8 @@ function setAppMode(m) {
   document.getElementById('controlsB').style.display = m === 'glow' ? 'block' : 'none';
   document.getElementById('blendModeSection').style.display = m === 'bake' ? 'block' : 'none';
   document.getElementById('bgSection').style.display = m === 'bake' ? 'block' : 'none';
+  document.getElementById('defringeCtrl').style.display = m === 'bake' ? 'block' : 'none';
+  document.getElementById('linearLightCtrl').style.display = m === 'glow' ? 'block' : 'none';
   document.getElementById('modeTxt').textContent = m === 'bake' ? 'Blend Bake' : 'Glow Extractor';
   updateWarn();
   schedule();
@@ -1802,11 +1848,17 @@ function processGlow(id, w, h) {
   const blendOut = new ImageData(w, h);
   const rd = result.data, bd = blendOut.data;
 
+  const useLinear = S.linearLight;
+
   for (let y=0; y<h; y++) {
     for (let x=0; x<w; x++) {
       const i = (y*w+x)*4;
-      const r = src[i]/255, g = src[i+1]/255, b = src[i+2]/255, a = src[i+3]/255;
-      const lum = Math.max(r,g,b)*a;
+      let r = src[i]/255, g = src[i+1]/255, b = src[i+2]/255;
+      const a = src[i+3]/255;
+      // Optionally decode to linear light for more physically accurate extraction
+      let lr = r, lg = g, lb = b;
+      if (useLinear) { lr = srgbToLinear(r); lg = srgbToLinear(g); lb = srgbToLinear(b); }
+      const lum = Math.max(lr, lg, lb) * a;
 
       // blend preview — original on very dark
       bd[i]   = src[i];
@@ -1823,16 +1875,26 @@ function processGlow(id, w, h) {
 
       let rr=0, rg=0, rb=0;
       if (alpha > 0.001) {
+        // Work in linear or sRGB depending on mode
+        const wr = useLinear ? lr : r;
+        const wg = useLinear ? lg : g;
+        const wb = useLinear ? lb : b;
+
         // hybrid unpremultiply
-        const unR = Math.min(r/alpha,1);
-        const unG = Math.min(g/alpha,1);
-        const unB = Math.min(b/alpha,1);
+        const unR = Math.min(wr/alpha,1);
+        const unG = Math.min(wg/alpha,1);
+        const unB = Math.min(wb/alpha,1);
 
         // glow-preserving local strength
         const ls = sf * (1 - pg*(1-alpha));
-        rr = r + (unR-r)*ls;
-        rg = g + (unG-g)*ls;
-        rb = b + (unB-b)*ls;
+        let or = wr + (unR-wr)*ls;
+        let og = wg + (unG-wg)*ls;
+        let ob = wb + (unB-wb)*ls;
+
+        // Convert back to sRGB if we worked in linear
+        rr = useLinear ? linearToSrgb(Math.min(or,1)) : Math.min(or,1);
+        rg = useLinear ? linearToSrgb(Math.min(og,1)) : Math.min(og,1);
+        rb = useLinear ? linearToSrgb(Math.min(ob,1)) : Math.min(ob,1);
       }
 
       rd[i]   = Math.min(rr,1)*255|0;
@@ -1865,6 +1927,107 @@ function computeDiff(a, b) {
 }
 
 // ═══════════════════════════════════════════════════════
+// POST-PROCESSING
+// ═══════════════════════════════════════════════════════
+
+// Box-blur the alpha channel (2-pass, separable)
+function blurAlpha(result, w, h, radius) {
+  if (radius <= 0) return;
+  const r = Math.max(1, Math.round(radius));
+  const d = result.data;
+  const tmp = new Float32Array(w * h);
+
+  // Read alpha
+  for (let i = 0; i < w * h; i++) tmp[i] = d[i * 4 + 3] / 255;
+
+  // Horizontal pass
+  const h1 = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) {
+    let sum = 0, cnt = 0;
+    // Prime window
+    for (let dx = -r; dx <= r; dx++) {
+      const nx = Math.max(0, Math.min(w - 1, dx));
+      sum += tmp[y * w + nx]; cnt++;
+    }
+    for (let x = 0; x < w; x++) {
+      h1[y * w + x] = sum / cnt;
+      const removeX = x - r, addX = x + r + 1;
+      if (removeX >= 0) { sum -= tmp[y * w + removeX]; cnt--; }
+      if (addX < w)     { sum += tmp[y * w + addX];    cnt++; }
+    }
+  }
+
+  // Vertical pass + write back
+  for (let x = 0; x < w; x++) {
+    let sum = 0, cnt = 0;
+    for (let dy = -r; dy <= r; dy++) {
+      const ny = Math.max(0, Math.min(h - 1, dy));
+      sum += h1[ny * w + x]; cnt++;
+    }
+    for (let y = 0; y < h; y++) {
+      d[(y * w + x) * 4 + 3] = Math.round(sum / cnt * 255);
+      const removeY = y - r, addY = y + r + 1;
+      if (removeY >= 0) { sum -= h1[removeY * w + x]; cnt--; }
+      if (addY < h)     { sum += h1[addY * w + x];   cnt++; }
+    }
+  }
+}
+
+// Boost saturation of RGB using luminance-preserving approach
+function boostSat(r, g, b, factor) {
+  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return [
+    Math.max(0, Math.min(1, lum + (r - lum) * factor)),
+    Math.max(0, Math.min(1, lum + (g - lum) * factor)),
+    Math.max(0, Math.min(1, lum + (b - lum) * factor)),
+  ];
+}
+
+// Apply post-processing to a result ImageData in place
+function applyPostProcess(result, w, h) {
+  const d = result.data;
+  const satF = 1 + S.satBoost / 100;
+  const dfF  = S.defringe / 100;
+
+  if (satF !== 1 || dfF > 0) {
+    for (let i = 0; i < w * h * 4; i += 4) {
+      let r = d[i] / 255, g = d[i+1] / 255, b = d[i+2] / 255;
+      const a = d[i+3] / 255;
+      if (a < 0.001) continue;
+
+      // Saturation boost
+      if (satF !== 1) {
+        [r, g, b] = boostSat(r, g, b, satF);
+      }
+
+      // Defringe: push semi-transparent pixels' colors toward brighter/purer values.
+      // Semi-transparent pixels often carry residual background darkness.
+      if (dfF > 0 && a < 0.98) {
+        const softness = dfF * (1 - a); // strongest at low alpha
+        const mx = Math.max(r, g, b);
+        if (mx > 0.001) {
+          // Boost: scale toward white preserving hue
+          r = Math.min(r + (r / mx - r) * softness * 0.5 + softness * 0.1 * (1 - r), 1);
+          g = Math.min(g + (g / mx - g) * softness * 0.5 + softness * 0.1 * (1 - g), 1);
+          b = Math.min(b + (b / mx - b) * softness * 0.5 + softness * 0.1 * (1 - b), 1);
+        }
+      }
+
+      d[i]   = r * 255 | 0;
+      d[i+1] = g * 255 | 0;
+      d[i+2] = b * 255 | 0;
+    }
+  }
+
+  // Alpha feather last (operates only on alpha channel)
+  if (S.feather > 0) blurAlpha(result, w, h, S.feather);
+}
+
+// sRGB ↔ linear helpers (for Glow linear light mode)
+function srgbToLinear(v) { return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+function linearToSrgb(v) { return v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1/2.4) - 0.055; }
+
+// ═══════════════════════════════════════════════════════
 // PROCESSING SCHEDULER
 // ═══════════════════════════════════════════════════════
 let _timer = null;
@@ -1879,6 +2042,10 @@ function onParamChange() {
   S.pGlow  = +document.getElementById('rPGlow').value;
   S.gThr   = +document.getElementById('rGThr').value * 0.1;
   S.black  = +document.getElementById('rBlack').value;
+  S.feather    = +document.getElementById('rFeather').value;
+  S.satBoost   = +document.getElementById('rSatBoost').value;
+  S.defringe   = +document.getElementById('rDefringe').value;
+  S.linearLight = document.getElementById('chkLinear').checked;
   updateWarn();
   schedule();
 }
@@ -1899,6 +2066,7 @@ function runProcess() {
       const { result, blendOut } = S.mode === 'bake'
         ? processBake(S.srcImgData, w, h)
         : processGlow(S.srcImgData, w, h);
+      applyPostProcess(result, w, h);
       S.resultID = result;
       S.blendID  = blendOut;
       document.getElementById('timeTxt').textContent = `${(performance.now()-t0)|0}ms`;
@@ -2229,7 +2397,17 @@ function resetControls() {
     document.getElementById('vPGlow').textContent  = '60%';
     document.getElementById('vGThr').textContent   = '0.2%';
     document.getElementById('vBlack').textContent  = '5';
+    document.getElementById('chkLinear').checked = false;
   }
+  // Reset shared output quality
+  ['rFeather','rSatBoost','rDefringe'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = 0;
+    el.style.setProperty('--val', '0%');
+  });
+  document.getElementById('vFeather').textContent  = '0px';
+  document.getElementById('vSatBoost').textContent = '0%';
+  document.getElementById('vDefringe').textContent = '0%';
   schedule();
 }
 
