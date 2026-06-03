@@ -254,6 +254,82 @@ body {
   display: none;
 }
 
+/* Algorithm cards */
+.algo-cards { display: flex; flex-direction: column; gap: 6px; }
+
+.algo-card {
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  padding: 11px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--bg-tertiary);
+}
+.algo-card:hover { border-color: #444; }
+.algo-card.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.algo-radio {
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.algo-card.active .algo-radio {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.algo-radio::after {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.algo-card.active .algo-radio::after { opacity: 1; }
+
+.algo-body { flex: 1; min-width: 0; }
+.algo-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.algo-card.active .algo-title { color: var(--accent); }
+.algo-desc {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  line-height: 1.55;
+}
+.algo-tags {
+  margin-top: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.algo-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
+}
+.algo-card.active .algo-tag {
+  background: rgba(124,92,252,0.1);
+  color: var(--accent);
+  border-color: rgba(124,92,252,0.2);
+}
+
 /* Info box */
 .info-box {
   background: var(--accent-dim2);
@@ -595,7 +671,8 @@ input[type="range"]::-moz-range-track {
   min-width: 0;
 }
 .pv-cell-label {
-  padding: 7px 12px;
+  height: 34px;
+  padding: 0 12px;
   font-size: 10px;
   font-weight: 600;
   color: var(--text-tertiary);
@@ -604,18 +681,93 @@ input[type="range"]::-moz-range-track {
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-subtle);
   flex-shrink: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  overflow: visible;
 }
-.pv-cell-wrap {
-  flex: 1;
+
+/* Result label row with inline bg controls */
+.result-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: visible;
+}
+
+.result-bg-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+}
+
+.rbc-btn {
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.12s;
+  flex-shrink: 0;
+  padding: 0;
+}
+.rbc-btn:hover { border-color: var(--border); color: var(--text-primary); }
+.rbc-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+
+.rbc-color-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 5px 2px 3px;
+  cursor: pointer;
+  transition: border-color 0.12s;
+}
+.rbc-color-wrap:focus-within { border-color: var(--accent); }
+
+.rbc-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.1);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.rbc-swatch input[type="color"] {
+  position: absolute;
+  inset: -3px;
+  opacity: 0;
+  cursor: pointer;
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
+}
+
+.rbc-hex {
+  width: 58px;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  text-transform: uppercase;
+  cursor: text;
+}
+.rbc-hex:focus { color: var(--text-primary); }
+.pv-cell-wrap {
+  flex: 1;
   overflow: hidden;
   position: relative;
-  cursor: crosshair;
+  cursor: grab;
 }
 .cb { background: repeating-conic-gradient(#151518 0 25%, #1e1e22 0 50%) 0 0 / 14px 14px; }
 
@@ -726,9 +878,8 @@ input[type="range"]::-moz-range-track {
 
 canvas {
   display: block;
-  max-width: 100%;
-  max-height: 100%;
   image-rendering: pixelated;
+  cursor: grab;
 }
 
 /* ── STATUS BAR ──────────────────────────────────────────── */
@@ -794,6 +945,93 @@ canvas {
   margin-top: 8px;
   border: 1px solid var(--border);
 }
+
+/* ── LANGUAGE SWITCHER ── */
+.lang-switcher {
+  display: flex;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 2px;
+  gap: 2px;
+}
+.lang-btn {
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  transition: all 0.12s;
+  letter-spacing: 0.03em;
+}
+.lang-btn.active {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ── HELP BUTTON & TOOLTIP ── */
+.help-btn {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--text-tertiary);
+  background: none;
+  color: var(--text-tertiary);
+  font-size: 8.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 4px;
+  line-height: 1;
+  transition: all 0.12s;
+  padding: 0;
+}
+.help-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.tooltip-popup {
+  position: fixed;
+  z-index: 300;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  max-width: 230px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.55);
+  display: none;
+}
+.tooltip-popup.visible { display: block; }
+.tooltip-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+/* ── ZOOM INPUT ── */
+.zoom-num-input {
+  width: 56px;
+  text-align: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  padding: 3px 5px;
+  outline: none;
+  transition: border-color 0.12s;
+}
+.zoom-num-input:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -804,12 +1042,12 @@ canvas {
     <div class="logo-badge">🍞</div>
     Blend Mode Baker <span class="logo-pro">PRO</span>
   </div>
-  <div class="mode-pill-group">
-    <button class="mode-pill active" data-mode="bake" onclick="setAppMode('bake')">Universal Blend Bake</button>
-    <button class="mode-pill" data-mode="glow" onclick="setAppMode('glow')">Glow / VFX Converter</button>
-  </div>
   <div class="header-right">
-    <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ru')">RU</button>
+    </div>
+    <button class="btn btn-ghost" id="btnReset" onclick="resetAll()">Reset</button>
     <button class="btn btn-accent" id="exportBtn" onclick="exportPNG()" disabled>↓ Export PNG</button>
   </div>
 </header>
@@ -833,12 +1071,39 @@ canvas {
       <div class="thumb-info" id="thumbInfo"></div>
     </div>
 
-    <!-- Mode info -->
+    <!-- Algorithm selector -->
     <div class="ps">
-      <div class="info-box" id="modeInfo"></div>
+      <div class="ps-title">Algorithm</div>
+      <div class="algo-cards">
+        <div class="algo-card active" id="algoBake" onclick="setAppMode('bake')">
+          <div class="algo-radio"></div>
+          <div class="algo-body">
+            <div class="algo-title">Blend Bake</div>
+            <div class="algo-desc">Bake any blend mode onto a known background into a portable PNG.</div>
+            <div class="algo-tags">
+              <span class="algo-tag">Screen</span>
+              <span class="algo-tag">Multiply</span>
+              <span class="algo-tag">Overlay</span>
+              <span class="algo-tag">+ 7 more</span>
+            </div>
+          </div>
+        </div>
+        <div class="algo-card" id="algoGlow" onclick="setAppMode('glow')">
+          <div class="algo-radio"></div>
+          <div class="algo-body">
+            <div class="algo-title">Glow Extractor</div>
+            <div class="algo-desc">Extract true alpha from glows on black backgrounds. Works on any target.</div>
+            <div class="algo-tags">
+              <span class="algo-tag">Add</span>
+              <span class="algo-tag">Linear Dodge</span>
+              <span class="algo-tag">Screen</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Blend Mode (Mode A only) -->
+    <!-- Blend Mode (Blend Bake only) -->
     <div class="ps" id="blendModeSection">
       <div class="ps-title">Blend Mode</div>
       <select id="blendModeSelect" onchange="onParamChange()">
@@ -858,9 +1123,9 @@ canvas {
       </div>
     </div>
 
-    <!-- Background (Mode A only) -->
+    <!-- Source Background (Blend Bake only) -->
     <div class="ps" id="bgSection">
-      <div class="ps-title">Background</div>
+      <div class="ps-title">Source Background</div>
       <div class="mini-tabs">
         <button class="mini-tab active" data-bgt="color" onclick="setBgType('color')">Solid Color</button>
         <button class="mini-tab" data-bgt="image" onclick="setBgType('image')">Image</button>
@@ -878,50 +1143,51 @@ canvas {
         📁 Upload background image
         <div class="small-upload-thumb" id="bgThumb"><img id="bgThumbImg" src="" alt=""></div>
       </div>
-      <button class="auto-btn" onclick="autoDetect()">⟳ Auto-Detect Background from Corners</button>
+      <button class="auto-btn" onclick="autoDetect()">⟳ Auto-Detect from Corners</button>
     </div>
 
-    <!-- Controls A -->
-    <div class="ps" id="controlsA">
-      <div class="ps-title">Controls <button class="ps-title-btn" onclick="resetA()">Reset</button></div>
+    <!-- Controls — unified, content changes per algo -->
+    <div class="ps" id="controlsSection">
+      <div class="ps-title">Controls <button class="ps-title-btn" id="resetBtn" onclick="resetControls()">Reset</button></div>
 
-      <div class="ctrl">
-        <div class="ctrl-lbl"><span>Strength</span><span class="ctrl-val" id="vStrength">100%</span></div>
-        <input type="range" id="rStrength" min="0" max="200" value="100" oninput="syncSlider(this,'vStrength','%'); onParamChange()">
+      <!-- Blend Bake controls -->
+      <div id="controlsA">
+        <div class="ctrl">
+          <div class="ctrl-lbl"><span><span data-t="lblStrength">Strength</span><button class="help-btn" onclick="showHelp('strength',this)">?</button></span><span class="ctrl-val" id="vStrength">100%</span></div>
+          <input type="range" id="rStrength" min="0" max="200" value="100" oninput="syncSlider(this,'vStrength','%'); onParamChange()">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl"><span><span data-t="lblThreshold">Threshold</span><button class="help-btn" onclick="showHelp('threshold',this)">?</button></span><span class="ctrl-val" id="vThreshold">0.2%</span></div>
+          <input type="range" id="rThreshold" min="0" max="100" step="1" value="2" oninput="syncSlider(this,'vThreshold','%',0.1); onParamChange()">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl"><span><span data-t="lblMatte">Matte Removal</span><button class="help-btn" onclick="showHelp('matte',this)">?</button></span><span class="ctrl-val" id="vMatte">50%</span></div>
+          <input type="range" id="rMatte" min="0" max="100" value="50" oninput="syncSlider(this,'vMatte','%'); onParamChange()">
+        </div>
       </div>
-      <div class="ctrl">
-        <div class="ctrl-lbl"><span>Threshold</span><span class="ctrl-val" id="vThreshold">0.2%</span></div>
-        <input type="range" id="rThreshold" min="0" max="100" step="1" value="2" oninput="syncSlider(this,'vThreshold','%',0.1); onParamChange()">
-      </div>
-      <div class="ctrl">
-        <div class="ctrl-lbl"><span>Matte Removal</span><span class="ctrl-val" id="vMatte">50%</span></div>
-        <input type="range" id="rMatte" min="0" max="100" value="50" oninput="syncSlider(this,'vMatte','%'); onParamChange()">
-      </div>
-    </div>
 
-    <!-- Controls B -->
-    <div class="ps" id="controlsB" style="display:none">
-      <div class="ps-title">Glow Controls <button class="ps-title-btn" onclick="resetB()">Reset</button></div>
-
-      <div class="ctrl">
-        <div class="ctrl-lbl"><span>Strength</span><span class="ctrl-val" id="vGStr">100%</span></div>
-        <input type="range" id="rGStr" min="0" max="200" value="100" oninput="syncSlider(this,'vGStr','%'); onParamChange()">
-      </div>
-      <div class="ctrl">
-        <div class="ctrl-lbl"><span>Alpha Gamma</span><span class="ctrl-val" id="vGamma">1.0</span></div>
-        <input type="range" id="rGamma" min="5" max="30" value="10" oninput="syncSlider(this,'vGamma','',0.1); onParamChange()">
-      </div>
-      <div class="ctrl">
-        <div class="ctrl-lbl"><span>Preserve Soft Glow</span><span class="ctrl-val" id="vPGlow">60%</span></div>
-        <input type="range" id="rPGlow" min="0" max="100" value="60" oninput="syncSlider(this,'vPGlow','%'); onParamChange()">
-      </div>
-      <div class="ctrl">
-        <div class="ctrl-lbl"><span>Threshold</span><span class="ctrl-val" id="vGThr">0.2%</span></div>
-        <input type="range" id="rGThr" min="0" max="100" step="1" value="2" oninput="syncSlider(this,'vGThr','%',0.1); onParamChange()">
-      </div>
-      <div class="ctrl">
-        <div class="ctrl-lbl"><span>Black Cleanup</span><span class="ctrl-val" id="vBlack">5</span></div>
-        <input type="range" id="rBlack" min="0" max="40" value="5" oninput="syncSlider(this,'vBlack',''); onParamChange()">
+      <!-- Glow Extractor controls -->
+      <div id="controlsB" style="display:none">
+        <div class="ctrl">
+          <div class="ctrl-lbl"><span><span data-t="lblGStr">Strength</span><button class="help-btn" onclick="showHelp('gStr',this)">?</button></span><span class="ctrl-val" id="vGStr">100%</span></div>
+          <input type="range" id="rGStr" min="0" max="200" value="100" oninput="syncSlider(this,'vGStr','%'); onParamChange()">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl"><span><span data-t="lblGamma">Alpha Gamma</span><button class="help-btn" onclick="showHelp('gamma',this)">?</button></span><span class="ctrl-val" id="vGamma">1.0</span></div>
+          <input type="range" id="rGamma" min="5" max="30" value="10" oninput="syncSlider(this,'vGamma','',0.1); onParamChange()">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl"><span><span data-t="lblPGlow">Preserve Soft Glow</span><button class="help-btn" onclick="showHelp('pGlow',this)">?</button></span><span class="ctrl-val" id="vPGlow">60%</span></div>
+          <input type="range" id="rPGlow" min="0" max="100" value="60" oninput="syncSlider(this,'vPGlow','%'); onParamChange()">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl"><span><span data-t="lblThreshold">Threshold</span><button class="help-btn" onclick="showHelp('gThr',this)">?</button></span><span class="ctrl-val" id="vGThr">0.2%</span></div>
+          <input type="range" id="rGThr" min="0" max="100" step="1" value="2" oninput="syncSlider(this,'vGThr','%',0.1); onParamChange()">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl"><span><span data-t="lblBlack">Black Cleanup</span><button class="help-btn" onclick="showHelp('black',this)">?</button></span><span class="ctrl-val" id="vBlack">5</span></div>
+          <input type="range" id="rBlack" min="0" max="40" value="5" oninput="syncSlider(this,'vBlack',''); onParamChange()">
+        </div>
       </div>
     </div>
 
@@ -933,26 +1199,16 @@ canvas {
     <!-- Preview toolbar -->
     <div class="preview-bar">
       <div class="pv-tabs">
-        <button class="pv-tab active" data-pv="grid" onclick="setPvMode('grid')">3-Panel</button>
-        <button class="pv-tab" data-pv="split" onclick="setPvMode('split')">Split</button>
-        <button class="pv-tab" data-pv="diff" onclick="setPvMode('diff')">Difference</button>
-      </div>
-      <div class="bar-sep"></div>
-      <div class="bg-btns" id="bgBtns">
-        <button class="bg-btn active" data-pbg="checker" onclick="setPvBg('checker',this)">Checker</button>
-        <button class="bg-btn" data-pbg="white" onclick="setPvBg('white',this)">White</button>
-        <button class="bg-btn" data-pbg="black" onclick="setPvBg('black',this)">Black</button>
-        <button class="bg-btn" data-pbg="purple" onclick="setPvBg('purple',this)">Purple</button>
+        <button class="pv-tab active" data-pv="grid" onclick="setPvMode('grid')" data-t="tab3panel">3-Panel</button>
+        <button class="pv-tab" data-pv="split" onclick="setPvMode('split')" data-t="tabSplit">Split</button>
       </div>
       <div class="zoom-row">
-        <button class="zoom-btn" onclick="nudgeZoom(-0.2)">−</button>
-        <span class="zoom-lv" id="zoomLv">Fit</span>
-        <button class="zoom-btn" onclick="nudgeZoom(0.2)">+</button>
-        <div class="bar-sep" style="margin:0 2px"></div>
-        <button class="zoom-preset" onclick="setZoom('fit')">Fit</button>
-        <button class="zoom-preset" onclick="setZoom(1)">100</button>
-        <button class="zoom-preset" onclick="setZoom(2)">200</button>
-        <button class="zoom-preset" onclick="setZoom(4)">400</button>
+        <button class="zoom-btn" onclick="nudgeZoom(-0.1)">−</button>
+        <input class="zoom-num-input" id="zoomInput" value="Fit"
+               onchange="onZoomInput(this)"
+               onkeydown="if(event.key==='Enter')this.blur()"
+               onfocus="this.select()">
+        <button class="zoom-btn" onclick="nudgeZoom(0.1)">+</button>
       </div>
     </div>
 
@@ -966,7 +1222,7 @@ canvas {
         <div class="empty-drop-hint">You can also drop a file anywhere on the page</div>
       </div>
 
-      <!-- 3-panel -->
+      <!-- 2-panel -->
       <div class="pv-grid" id="gridView">
         <div class="pv-cell">
           <div class="pv-cell-label">Original</div>
@@ -975,13 +1231,27 @@ canvas {
           </div>
         </div>
         <div class="pv-cell">
-          <div class="pv-cell-label" id="blendLabel">Blend Preview</div>
-          <div class="pv-cell-wrap" id="cellBlend" onmousemove="pixelInspect(event,'blend')" onmouseleave="hidePi()">
-            <canvas id="cvBlend"></canvas>
+          <div class="pv-cell-label result-label-row">
+            <span>Baked Result ✓</span>
+            <div class="result-bg-controls">
+              <!-- Transparent -->
+              <button class="rbc-btn active" id="rbcChecker" title="Transparent" onclick="setResultBg('checker')">
+                <svg width="14" height="14" viewBox="0 0 14 14"><rect width="7" height="7" fill="#888"/><rect x="7" y="7" width="7" height="7" fill="#888"/><rect x="7" width="7" height="7" fill="#444"/><rect y="7" width="7" height="7" fill="#444"/></svg>
+              </button>
+              <!-- Color swatch + hex -->
+              <div class="rbc-color-wrap">
+                <div class="rbc-swatch" id="rbcSwatch" style="background:#1a1a2e" onclick="setResultBg('color')">
+                  <input type="color" id="rbcPicker" value="#1a1a2e" oninput="onRbcColor(event)">
+                </div>
+                <input type="text" class="rbc-hex" id="rbcHex" value="#1a1a2e" maxlength="7" oninput="onRbcHex(event)" onclick="setResultBg('color')">
+              </div>
+              <!-- Photo upload -->
+              <label class="rbc-btn" id="rbcPhoto" title="Background photo">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <input type="file" accept="image/*" style="display:none" onchange="handleRbcPhoto(event)">
+              </label>
+            </div>
           </div>
-        </div>
-        <div class="pv-cell">
-          <div class="pv-cell-label">Baked Result ✓</div>
           <div class="pv-cell-wrap" id="cellResult" onmousemove="pixelInspect(event,'result')" onmouseleave="hidePi()">
             <canvas id="cvResult"></canvas>
           </div>
@@ -999,7 +1269,7 @@ canvas {
         <div class="split-div" id="splitDiv">
           <div class="split-handle">⟺</div>
         </div>
-        <div class="split-labels">Blend Preview ← | → Baked Result</div>
+        <div class="split-labels">Original ← | → Baked Result</div>
       </div>
 
       <!-- Diff -->
@@ -1033,6 +1303,12 @@ canvas {
 
 </div><!-- /workspace -->
 
+<!-- Tooltip popup -->
+<div class="tooltip-popup" id="tooltipPopup">
+  <div class="tooltip-title" id="tooltipTitle"></div>
+  <div id="tooltipBody"></div>
+</div>
+
 <!-- Pixel Inspector -->
 <div class="pi" id="pixelInspector">
   <div class="pi-title">Pixel Inspector</div>
@@ -1046,6 +1322,102 @@ canvas {
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════
+// i18n
+// ═══════════════════════════════════════════════════════
+const LANG = {
+  en: {
+    reset: 'Reset', export: '↓ Export PNG',
+    tab3panel: '3-Panel', tabSplit: 'Split',
+    lblStrength: 'Strength', lblThreshold: 'Threshold', lblMatte: 'Matte Removal',
+    lblGStr: 'Strength', lblGamma: 'Alpha Gamma', lblPGlow: 'Preserve Soft Glow',
+    lblBlack: 'Black Cleanup',
+    ready: 'Ready', processing: 'Processing…', exported: 'Exported PNG', imageLoaded: 'Image loaded',
+    help: {
+      strength:  { title: 'Strength',           text: 'How strongly the effect is extracted. 100% = normal. Lower values fade the result; higher values boost it.' },
+      threshold: { title: 'Threshold',          text: 'Minimum alpha value. Pixels below this become fully transparent — useful for eliminating noise at edges.' },
+      matte:     { title: 'Matte Removal',      text: 'Removes dark halo artifacts that appear when the source was blended on a dark background. Increase if edges look muddy.' },
+      gStr:      { title: 'Strength',           text: 'Overall extraction intensity. 100% = full extraction. Lower values produce a softer, more transparent result.' },
+      gamma:     { title: 'Alpha Gamma',        text: 'Controls how quickly alpha fades away from bright areas. Lower values give softer, more gradual glow edges.' },
+      pGlow:     { title: 'Preserve Soft Glow', text: 'Blends between unpremultiplied colors (sharp, saturated) and original colors (soft, natural). Higher = softer glow feel.' },
+      gThr:      { title: 'Threshold',          text: 'Minimum alpha value for glow pixels. Helps cut dim noise from the glow edges.' },
+      black:     { title: 'Black Cleanup',      text: 'Cuts out near-black pixels — useful when the source had a pure black background with subtle imperfections.' },
+    }
+  },
+  ru: {
+    reset: 'Сброс', export: '↓ Экспорт PNG',
+    tab3panel: '3 панели', tabSplit: 'Разделить',
+    lblStrength: 'Сила', lblThreshold: 'Порог', lblMatte: 'Удаление матта',
+    lblGStr: 'Сила', lblGamma: 'Гамма альфа-канала', lblPGlow: 'Мягкое свечение',
+    lblBlack: 'Очистка чёрного',
+    ready: 'Готово', processing: 'Обработка…', exported: 'PNG экспортирован', imageLoaded: 'Изображение загружено',
+    help: {
+      strength:  { title: 'Сила',                   text: 'Интенсивность извлечения. 100% — стандартное извлечение. Уменьшите для прозрачности, увеличьте для усиления.' },
+      threshold: { title: 'Порог',                  text: 'Минимальное значение альфа. Пиксели ниже порога становятся прозрачными — помогает убрать шум по краям.' },
+      matte:     { title: 'Удаление матта',         text: 'Убирает тёмный ореол по краям при наложении на тёмный фон. Увеличьте, если края выглядят грязными.' },
+      gStr:      { title: 'Сила',                   text: 'Общая интенсивность извлечения. 100% — полное извлечение. Меньшие значения дают более прозрачный результат.' },
+      gamma:     { title: 'Гамма альфа-канала',     text: 'Управляет скоростью затухания альфа-канала. Меньшие значения — более плавные, мягкие края свечения.' },
+      pGlow:     { title: 'Мягкое свечение',        text: 'Смешивает чистые (резкие, насыщенные) и оригинальные (мягкие) цвета. Выше = естественнее свечение.' },
+      gThr:      { title: 'Порог',                  text: 'Минимальное значение альфа для пикселей свечения. Убирает тусклый шум по краям.' },
+      black:     { title: 'Очистка чёрного',        text: 'Удаляет почти чёрные пиксели — полезно, когда источник имел чёрный фон с небольшими артефактами.' },
+    }
+  }
+};
+
+let currentLang = 'en';
+
+function T(key) { return (LANG[currentLang][key] || LANG.en[key]) ?? key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.textContent.trim() === lang.toUpperCase())
+  );
+  applyTranslations();
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const v = T(el.dataset.t);
+    if (typeof v === 'string') el.textContent = v;
+  });
+  document.getElementById('btnReset').textContent = T('reset');
+  // Update export button — keep the arrow
+  document.getElementById('exportBtn').textContent = T('export');
+}
+
+// ═══════════════════════════════════════════════════════
+// TOOLTIP
+// ═══════════════════════════════════════════════════════
+let _tooltipKey = null;
+
+function showHelp(key, btn) {
+  const popup = document.getElementById('tooltipPopup');
+  if (_tooltipKey === key) {
+    popup.classList.remove('visible');
+    _tooltipKey = null;
+    return;
+  }
+  const data = (LANG[currentLang].help || {})[key] || LANG.en.help[key];
+  if (!data) return;
+  document.getElementById('tooltipTitle').textContent = data.title;
+  document.getElementById('tooltipBody').textContent = data.text;
+  const rc = btn.getBoundingClientRect();
+  const left = Math.min(rc.right + 10, window.innerWidth - 250);
+  const top  = Math.max(rc.top - 10, 8);
+  popup.style.left = left + 'px';
+  popup.style.top  = top  + 'px';
+  popup.classList.add('visible');
+  _tooltipKey = key;
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.classList.contains('help-btn')) {
+    document.getElementById('tooltipPopup').classList.remove('visible');
+    _tooltipKey = null;
+  }
+});
+
 // ═══════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════
@@ -1069,8 +1441,11 @@ const S = {
   black: 5,
   // Preview
   pvMode: 'grid',
-  pvBg: 'checker',
   zoom: 'fit',
+  // Result background (right panel)
+  resultBgType: 'checker', // 'checker' | 'color' | 'image'
+  resultBgColor: '#1a1a2e',
+  resultBgImgData: null,
   // Output
   resultID: null,
   blendID: null,
@@ -1107,35 +1482,19 @@ function setStatus(txt, busy = false) {
 // ═══════════════════════════════════════════════════════
 // APP MODE
 // ═══════════════════════════════════════════════════════
-const MODE_INFO = {
-  bake: 'Mode A — Universal Blend Bake: converts blend-mode-dependent assets into a PNG optimized for a specific background color.',
-  glow: 'Mode B — Glow / VFX Converter: extracts true alpha from Screen / Add / Linear Dodge glow assets, preserving soft gradients and eliminating black mattes.',
-};
-
-const BLEND_LABELS = {
-  'screen': 'Screen Blend Preview',
-  'color-dodge': 'Color Dodge Preview',
-  'linear-dodge': 'Linear Dodge (Add) Preview',
-  'lighten': 'Lighten Preview',
-  'overlay': 'Overlay Preview',
-  'soft-light': 'Soft Light Preview',
-  'hard-light': 'Hard Light Preview',
-  'multiply': 'Multiply Preview',
-  'darken': 'Darken Preview',
-  'normal': 'Normal Preview',
-};
-
 const COMPLEX_MODES = ['color-dodge','overlay','soft-light','hard-light'];
 
 function setAppMode(m) {
   S.mode = m;
-  document.querySelectorAll('.mode-pill').forEach(p => p.classList.toggle('active', p.dataset.mode === m));
-  document.getElementById('modeInfo').textContent = MODE_INFO[m];
+  // Algorithm cards
+  document.getElementById('algoBake').classList.toggle('active', m === 'bake');
+  document.getElementById('algoGlow').classList.toggle('active', m === 'glow');
+  // Show/hide sections
   document.getElementById('controlsA').style.display = m === 'bake' ? 'block' : 'none';
   document.getElementById('controlsB').style.display = m === 'glow' ? 'block' : 'none';
   document.getElementById('blendModeSection').style.display = m === 'bake' ? 'block' : 'none';
   document.getElementById('bgSection').style.display = m === 'bake' ? 'block' : 'none';
-  document.getElementById('modeTxt').textContent = m === 'bake' ? 'Universal Blend Bake' : 'Glow / VFX Converter';
+  document.getElementById('modeTxt').textContent = m === 'bake' ? 'Blend Bake' : 'Glow Extractor';
   updateWarn();
   schedule();
 }
@@ -1227,6 +1586,62 @@ function autoDetect() {
   document.getElementById('colorSwatch').style.background = hex;
   setBgType('color');
   schedule();
+}
+
+// ═══════════════════════════════════════════════════════
+// RESULT BACKGROUND CONTROLS
+// ═══════════════════════════════════════════════════════
+function setResultBg(type) {
+  S.resultBgType = type;
+  document.getElementById('rbcChecker').classList.toggle('active', type === 'checker');
+  document.getElementById('rbcPhoto').classList.toggle('active', type === 'image');
+  // color wrap active state
+  document.querySelector('.rbc-color-wrap').style.borderColor =
+    type === 'color' ? 'var(--accent)' : '';
+  drawPreviews();
+}
+
+function onRbcColor(e) {
+  S.resultBgColor = e.target.value;
+  document.getElementById('rbcSwatch').style.background = S.resultBgColor;
+  document.getElementById('rbcHex').value = S.resultBgColor;
+  setResultBg('color');
+}
+
+function onRbcHex(e) {
+  let v = e.target.value.trim();
+  if (!v.startsWith('#')) v = '#' + v;
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+    S.resultBgColor = v;
+    document.getElementById('rbcSwatch').style.background = v;
+    document.getElementById('rbcPicker').value = v;
+    setResultBg('color');
+  }
+}
+
+function handleRbcPhoto(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = img.width; c.height = img.height;
+    c.getContext('2d').drawImage(img, 0, 0);
+    S.resultBgImgData = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    setResultBg('image');
+  };
+  img.src = url;
+}
+
+// Resolve result bg for drawOn:
+// Returns null (checker) | css color string | ImageData
+function getResultBg() {
+  if (S.resultBgType === 'checker') return null;
+  if (S.resultBgType === 'color') return S.resultBgColor;
+  if (S.resultBgType === 'image' && S.resultBgImgData) return S.resultBgImgData;
+  return null;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1465,7 +1880,6 @@ function onParamChange() {
   S.gThr   = +document.getElementById('rGThr').value * 0.1;
   S.black  = +document.getElementById('rBlack').value;
   updateWarn();
-  document.getElementById('blendLabel').textContent = BLEND_LABELS[S.blendMode] || 'Blend Preview';
   schedule();
 }
 
@@ -1499,88 +1913,171 @@ function runProcess() {
 }
 
 // ═══════════════════════════════════════════════════════
-// PREVIEW RENDERING
+// PREVIEW RENDERING  — Fill mode + drag-to-pan
 // ═══════════════════════════════════════════════════════
 function pvBgStyle() {
   const m = { checker: null, white: '#ffffff', black: '#000000', purple: '#2d0f6e' };
   return m[S.pvBg] ?? null;
 }
 
+// Per-canvas pan offsets  { canvasId: {ox, oy} }
+const panOffsets = {};
+
+function getPan(id) {
+  if (!panOffsets[id]) panOffsets[id] = { ox: 0, oy: 0 };
+  return panOffsets[id];
+}
+
+function resetPan(id) { panOffsets[id] = { ox: 0, oy: 0 }; }
+
+// Draw imgData onto canvas filling the full container area.
+// The image is scaled to FILL (cover) the container, then offset by pan.
 function drawOn(canvas, imgData, bg, zoom) {
   if (!imgData) return;
   const wrap = canvas.parentElement;
-  const cw = wrap.clientWidth || 400;
-  const ch = wrap.clientHeight || 400;
-  const w = imgData.width, h = imgData.height;
+  const cw = Math.max(wrap.clientWidth  || 400, 1);
+  const ch = Math.max(wrap.clientHeight || 300, 1);
+  const iw = imgData.width, ih = imgData.height;
 
+  // Scale so canvas covers full cell (Fill / cover)
   let sc;
-  if (zoom === 'fit') sc = Math.min(cw/w, ch/h, 1);
-  else sc = zoom;
+  if (zoom === 'fit') {
+    sc = Math.max(cw / iw, ch / ih); // cover
+  } else {
+    sc = zoom;
+  }
 
-  const dw = Math.max(1, Math.round(w*sc));
-  const dh = Math.max(1, Math.round(h*sc));
-  canvas.width  = dw;
-  canvas.height = dh;
+  // Scaled image dimensions
+  const sw = iw * sc;
+  const sh = ih * sc;
+
+  // Pan offset, clamped so image always covers the cell when in fill mode
+  const pan = getPan(canvas.id);
+  let ox = pan.ox, oy = pan.oy;
+  if (zoom === 'fit') {
+    const maxOx = (sw - cw) / 2;
+    const maxOy = (sh - ch) / 2;
+    ox = Math.max(-maxOx, Math.min(maxOx, ox));
+    oy = Math.max(-maxOy, Math.min(maxOy, oy));
+    pan.ox = ox; pan.oy = oy;
+  }
+
+  // Canvas = full cell
+  canvas.width  = cw;
+  canvas.height = ch;
+  canvas.style.width  = cw + 'px';
+  canvas.style.height = ch + 'px';
   canvas._imgData = imgData;
   canvas._sc = sc;
+  canvas._ox = ox;
+  canvas._oy = oy;
 
   const ctx = canvas.getContext('2d');
 
+  // Draw background — null=checker, string=color, ImageData=photo
   if (bg === null) {
     const sz = 7;
-    for (let y=0; y<dh; y+=sz) for (let x=0; x<dw; x+=sz) {
-      ctx.fillStyle = ((x/sz|0)+(y/sz|0))%2===0 ? '#151518' : '#1e1e22';
-      ctx.fillRect(x,y,sz,sz);
+    for (let y = 0; y < ch; y += sz) for (let x = 0; x < cw; x += sz) {
+      ctx.fillStyle = ((x/sz|0)+(y/sz|0)) % 2 === 0 ? '#151518' : '#1e1e22';
+      ctx.fillRect(x, y, sz, sz);
     }
-  } else {
-    ctx.fillStyle = bg; ctx.fillRect(0,0,dw,dh);
+  } else if (typeof bg === 'string') {
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, cw, ch);
+  } else if (bg instanceof ImageData) {
+    // Photo background — contain (preserve aspect ratio, letterbox with dark)
+    const bw = bg.width, bh = bg.height;
+    const bsc = Math.min(cw / bw, ch / bh); // contain, not cover
+    const bdw = bw * bsc, bdh = bh * bsc;
+    const bdx = (cw - bdw) / 2, bdy = (ch - bdh) / 2;
+    ctx.fillStyle = '#111113';
+    ctx.fillRect(0, 0, cw, ch);
+    const boff = new OffscreenCanvas(bw, bh);
+    boff.getContext('2d').putImageData(bg, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(boff, bdx, bdy, bdw, bdh);
   }
 
-  const off = new OffscreenCanvas(w, h);
+  // Draw image centered + panned
+  const off = new OffscreenCanvas(iw, ih);
   off.getContext('2d').putImageData(imgData, 0, 0);
-  ctx.imageSmoothingEnabled = sc > 1;
-  ctx.drawImage(off, 0, 0, dw, dh);
+  ctx.imageSmoothingEnabled = sc < 1;
+  const dx = (cw - sw) / 2 + ox;
+  const dy = (ch - sh) / 2 + oy;
+  ctx.drawImage(off, dx, dy, sw, sh);
+}
+
+// ── Drag-to-pan ───────────────────────────────────────
+let _drag = null;
+
+function initPanDrag(canvas) {
+  canvas.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    _drag = { canvas, startX: e.clientX, startY: e.clientY,
+              ox0: getPan(canvas.id).ox, oy0: getPan(canvas.id).oy };
+    canvas.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+}
+
+document.addEventListener('mousemove', e => {
+  if (!_drag) return;
+  const p = getPan(_drag.canvas.id);
+  p.ox = _drag.ox0 + (e.clientX - _drag.startX);
+  p.oy = _drag.oy0 + (e.clientY - _drag.startY);
+  drawPreviews();
+});
+
+document.addEventListener('mouseup', () => {
+  if (_drag) { _drag.canvas.style.cursor = 'grab'; _drag = null; }
+});
+
+// Double-click resets pan for that canvas
+function resetPanOnDblClick(canvas) {
+  canvas.addEventListener('dblclick', () => {
+    resetPan(canvas.id);
+    drawPreviews();
+  });
 }
 
 function drawPreviews() {
   if (!S.resultID) return;
-  const bg = pvBgStyle();
   const z = S.zoom;
 
-  // Orig display (convert to display-only copy — show alpha over checker always)
+  // Original always on checker (shows transparency)
   const origDisp = new ImageData(new Uint8ClampedArray(S.srcImgData.data), S.srcImgData.width, S.srcImgData.height);
 
-  // Glow mode: blend preview always on black (that's its native environment)
-  // Bake mode: blend preview uses selected bg (same as result)
-  const blendBg = S.mode === 'glow' ? '#000000' : bg;
+  // Result background: null=checker, string=color, ImageData=photo
+  const resBg = getResultBg();
 
   if (S.pvMode === 'grid') {
-    drawOn(document.getElementById('cvOrig'),   origDisp,   null, z);
-    drawOn(document.getElementById('cvBlend'),  S.blendID,  blendBg, z);
-    drawOn(document.getElementById('cvResult'), S.resultID, bg, z);
+    drawOn(document.getElementById('cvOrig'),   origDisp,   null,  z);
+    drawOn(document.getElementById('cvResult'), S.resultID, resBg, z);
 
-    // update cell bg classes
+    // orig always checker class
     document.getElementById('cellOrig').classList.add('cb');
     document.getElementById('cellOrig').style.background = '';
-
-    const blendCell = document.getElementById('cellBlend');
-    if (blendBg === null) { blendCell.classList.add('cb'); blendCell.style.background = ''; }
-    else { blendCell.classList.remove('cb'); blendCell.style.background = blendBg; }
-
+    // result cell — only apply solid color as css bg (checker/photo handled on canvas)
     const resultCell = document.getElementById('cellResult');
-    if (bg === null) { resultCell.classList.add('cb'); resultCell.style.background = ''; }
-    else { resultCell.classList.remove('cb'); resultCell.style.background = bg; }
+    if (typeof resBg === 'string') {
+      resultCell.classList.remove('cb'); resultCell.style.background = resBg;
+    } else {
+      resultCell.classList.remove('cb'); resultCell.style.background = '';
+    }
 
   } else if (S.pvMode === 'split') {
-    drawOn(document.getElementById('cvSplitA'), S.blendID,  blendBg, z);
-    drawOn(document.getElementById('cvSplitB'), S.resultID, bg, z);
-    ['splitBefore','splitAfter'].forEach(id => {
-      const el = document.getElementById(id);
-      if (bg === null) { el.classList.add('cb'); el.style.background = ''; }
-      else { el.classList.remove('cb'); el.style.background = bg; }
-    });
+    // Split: left=original, right=baked result
+    drawOn(document.getElementById('cvSplitA'), origDisp,   null,  z);
+    drawOn(document.getElementById('cvSplitB'), S.resultID, resBg, z);
+    document.getElementById('splitBefore').classList.add('cb');
+    document.getElementById('splitBefore').style.background = '';
+    const sa = document.getElementById('splitAfter');
+    if (typeof resBg === 'string') { sa.classList.remove('cb'); sa.style.background = resBg; }
+    else { sa.classList.remove('cb'); sa.style.background = ''; }
+
   } else {
-    const diff = computeDiff(S.blendID, S.resultID);
+    // Diff: compare original (on black) vs result (on black)
+    const diff = computeDiff(origDisp, S.resultID);
     drawOn(document.getElementById('cvDiff'), diff, '#000000', z);
   }
 }
@@ -1589,18 +2086,16 @@ function drawPreviews() {
 // PREVIEW MODE / BG
 // ═══════════════════════════════════════════════════════
 function setPvMode(m) {
+  if (m === 'diff') m = 'grid'; // Difference mode removed
   S.pvMode = m;
   document.querySelectorAll('.pv-tab').forEach(t => t.classList.toggle('active', t.dataset.pv === m));
   document.getElementById('gridView').style.display   = m==='grid'  ? 'flex'  : 'none';
   document.getElementById('splitView').style.display  = m==='split' ? 'block' : 'none';
-  document.getElementById('diffView').style.display   = m==='diff'  ? 'flex'  : 'none';
+  document.getElementById('diffView').style.display   = 'none';
   drawPreviews();
 }
 
-function setPvBg(bg, btn) {
-  S.pvBg = bg;
-  document.querySelectorAll('.bg-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+function setPvBg(bg, btn) { // legacy, kept for safety
   drawPreviews();
 }
 
@@ -1609,15 +2104,22 @@ function setPvBg(bg, btn) {
 // ═══════════════════════════════════════════════════════
 function setZoom(z) {
   S.zoom = z;
-  const lv = document.getElementById('zoomLv');
-  if (z === 'fit') lv.textContent = 'Fit';
-  else lv.textContent = Math.round(z*100) + '%';
+  const inp = document.getElementById('zoomInput');
+  if (inp) inp.value = z === 'fit' ? 'Fit' : Math.round(z * 100) + '%';
   drawPreviews();
 }
 
 function nudgeZoom(d) {
   const cur = S.zoom === 'fit' ? 1 : S.zoom;
-  setZoom(Math.max(0.1, Math.min(8, parseFloat((cur+d).toFixed(2)))));
+  setZoom(Math.max(0.05, Math.min(8, parseFloat((cur + d).toFixed(2)))));
+}
+
+function onZoomInput(el) {
+  const raw = el.value.trim().replace('%', '');
+  if (raw.toLowerCase() === 'fit' || raw === '') { setZoom('fit'); return; }
+  const n = parseFloat(raw);
+  if (!isNaN(n) && n > 0) setZoom(Math.max(5, Math.min(800, n)) / 100);
+  else el.value = S.zoom === 'fit' ? 'Fit' : Math.round(S.zoom * 100) + '%';
 }
 
 document.getElementById('pvArea').addEventListener('wheel', e => {
@@ -1700,43 +2202,62 @@ function resetAll() {
   setStatus('Ready');
 }
 
-function resetA() {
-  document.getElementById('rStrength').value = 100;
-  document.getElementById('rThreshold').value = 2;
-  document.getElementById('rMatte').value = 50;
-  ['rStrength','rThreshold','rMatte'].forEach(id => {
-    const el = document.getElementById(id);
-    el.style.setProperty('--val', sliderPct(el) + '%');
-  });
-  document.getElementById('vStrength').textContent  = '100%';
-  document.getElementById('vThreshold').textContent = '0.2%';
-  document.getElementById('vMatte').textContent     = '50%';
+function resetControls() {
+  if (S.mode === 'bake') {
+    document.getElementById('rStrength').value = 100;
+    document.getElementById('rThreshold').value = 2;
+    document.getElementById('rMatte').value = 50;
+    ['rStrength','rThreshold','rMatte'].forEach(id => {
+      const el = document.getElementById(id);
+      el.style.setProperty('--val', sliderPct(el) + '%');
+    });
+    document.getElementById('vStrength').textContent  = '100%';
+    document.getElementById('vThreshold').textContent = '0.2%';
+    document.getElementById('vMatte').textContent     = '50%';
+  } else {
+    document.getElementById('rGStr').value   = 100;
+    document.getElementById('rGamma').value  = 10;
+    document.getElementById('rPGlow').value  = 60;
+    document.getElementById('rGThr').value   = 2;
+    document.getElementById('rBlack').value  = 5;
+    ['rGStr','rGamma','rPGlow','rGThr','rBlack'].forEach(id => {
+      const el = document.getElementById(id);
+      el.style.setProperty('--val', sliderPct(el) + '%');
+    });
+    document.getElementById('vGStr').textContent   = '100%';
+    document.getElementById('vGamma').textContent  = '1.0';
+    document.getElementById('vPGlow').textContent  = '60%';
+    document.getElementById('vGThr').textContent   = '0.2%';
+    document.getElementById('vBlack').textContent  = '5';
+  }
   schedule();
 }
 
-function resetB() {
-  document.getElementById('rGStr').value   = 100;
-  document.getElementById('rGamma').value  = 10;
-  document.getElementById('rPGlow').value  = 60;
-  document.getElementById('rGThr').value   = 2;
-  document.getElementById('rBlack').value  = 5;
-  ['rGStr','rGamma','rPGlow','rGThr','rBlack'].forEach(id => {
-    const el = document.getElementById(id);
-    el.style.setProperty('--val', sliderPct(el) + '%');
-  });
-  document.getElementById('vGStr').textContent   = '100%';
-  document.getElementById('vGamma').textContent  = '1.0';
-  document.getElementById('vPGlow').textContent  = '60%';
-  document.getElementById('vGThr').textContent   = '0.2%';
-  document.getElementById('vBlack').textContent  = '5';
-  schedule();
-}
+// keep aliases for resetAll
+function resetA() { const m = S.mode; S.mode = 'bake'; resetControls(); S.mode = m; }
+function resetB() { const m = S.mode; S.mode = 'glow'; resetControls(); S.mode = m; }
 
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 setAppMode('bake');
 initSliders();
+
+// Redraw on resize
+window.addEventListener('resize', () => { drawPreviews(); });
+
+// Init drag-to-pan on all preview canvases
+['cvOrig','cvBlend','cvResult','cvSplitA','cvSplitB','cvDiff'].forEach(id => {
+  const cv = document.getElementById(id);
+  if (cv) { initPanDrag(cv); resetPanOnDblClick(cv); }
+});
+
+// Reset pan when new image loaded
+const _origLoadFile = loadFile;
+window.loadFile = function(file) {
+  ['cvOrig','cvBlend','cvResult','cvSplitA','cvSplitB','cvDiff'].forEach(id => resetPan(id));
+  _origLoadFile(file);
+};
 </script>
 </body>
 </html>

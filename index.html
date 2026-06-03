@@ -671,7 +671,8 @@ input[type="range"]::-moz-range-track {
   min-width: 0;
 }
 .pv-cell-label {
-  padding: 7px 12px;
+  height: 34px;
+  padding: 0 12px;
   font-size: 10px;
   font-weight: 600;
   color: var(--text-tertiary);
@@ -680,9 +681,9 @@ input[type="range"]::-moz-range-track {
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-subtle);
   flex-shrink: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  overflow: visible;
 }
 
 /* Result label row with inline bg controls */
@@ -944,6 +945,93 @@ canvas {
   margin-top: 8px;
   border: 1px solid var(--border);
 }
+
+/* ── LANGUAGE SWITCHER ── */
+.lang-switcher {
+  display: flex;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 2px;
+  gap: 2px;
+}
+.lang-btn {
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  transition: all 0.12s;
+  letter-spacing: 0.03em;
+}
+.lang-btn.active {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ── HELP BUTTON & TOOLTIP ── */
+.help-btn {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--text-tertiary);
+  background: none;
+  color: var(--text-tertiary);
+  font-size: 8.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 4px;
+  line-height: 1;
+  transition: all 0.12s;
+  padding: 0;
+}
+.help-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.tooltip-popup {
+  position: fixed;
+  z-index: 300;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  max-width: 230px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.55);
+  display: none;
+}
+.tooltip-popup.visible { display: block; }
+.tooltip-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+/* ── ZOOM INPUT ── */
+.zoom-num-input {
+  width: 56px;
+  text-align: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  padding: 3px 5px;
+  outline: none;
+  transition: border-color 0.12s;
+}
+.zoom-num-input:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -955,7 +1043,11 @@ canvas {
     Blend Mode Baker <span class="logo-pro">PRO</span>
   </div>
   <div class="header-right">
-    <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ru')">RU</button>
+    </div>
+    <button class="btn btn-ghost" id="btnReset" onclick="resetAll()">Reset</button>
     <button class="btn btn-accent" id="exportBtn" onclick="exportPNG()" disabled>↓ Export PNG</button>
   </div>
 </header>
@@ -1061,15 +1153,15 @@ canvas {
       <!-- Blend Bake controls -->
       <div id="controlsA">
         <div class="ctrl">
-          <div class="ctrl-lbl"><span>Strength</span><span class="ctrl-val" id="vStrength">100%</span></div>
+          <div class="ctrl-lbl"><span><span data-t="lblStrength">Strength</span><button class="help-btn" onclick="showHelp('strength',this)">?</button></span><span class="ctrl-val" id="vStrength">100%</span></div>
           <input type="range" id="rStrength" min="0" max="200" value="100" oninput="syncSlider(this,'vStrength','%'); onParamChange()">
         </div>
         <div class="ctrl">
-          <div class="ctrl-lbl"><span>Threshold</span><span class="ctrl-val" id="vThreshold">0.2%</span></div>
+          <div class="ctrl-lbl"><span><span data-t="lblThreshold">Threshold</span><button class="help-btn" onclick="showHelp('threshold',this)">?</button></span><span class="ctrl-val" id="vThreshold">0.2%</span></div>
           <input type="range" id="rThreshold" min="0" max="100" step="1" value="2" oninput="syncSlider(this,'vThreshold','%',0.1); onParamChange()">
         </div>
         <div class="ctrl">
-          <div class="ctrl-lbl"><span>Matte Removal</span><span class="ctrl-val" id="vMatte">50%</span></div>
+          <div class="ctrl-lbl"><span><span data-t="lblMatte">Matte Removal</span><button class="help-btn" onclick="showHelp('matte',this)">?</button></span><span class="ctrl-val" id="vMatte">50%</span></div>
           <input type="range" id="rMatte" min="0" max="100" value="50" oninput="syncSlider(this,'vMatte','%'); onParamChange()">
         </div>
       </div>
@@ -1077,23 +1169,23 @@ canvas {
       <!-- Glow Extractor controls -->
       <div id="controlsB" style="display:none">
         <div class="ctrl">
-          <div class="ctrl-lbl"><span>Strength</span><span class="ctrl-val" id="vGStr">100%</span></div>
+          <div class="ctrl-lbl"><span><span data-t="lblGStr">Strength</span><button class="help-btn" onclick="showHelp('gStr',this)">?</button></span><span class="ctrl-val" id="vGStr">100%</span></div>
           <input type="range" id="rGStr" min="0" max="200" value="100" oninput="syncSlider(this,'vGStr','%'); onParamChange()">
         </div>
         <div class="ctrl">
-          <div class="ctrl-lbl"><span>Alpha Gamma</span><span class="ctrl-val" id="vGamma">1.0</span></div>
+          <div class="ctrl-lbl"><span><span data-t="lblGamma">Alpha Gamma</span><button class="help-btn" onclick="showHelp('gamma',this)">?</button></span><span class="ctrl-val" id="vGamma">1.0</span></div>
           <input type="range" id="rGamma" min="5" max="30" value="10" oninput="syncSlider(this,'vGamma','',0.1); onParamChange()">
         </div>
         <div class="ctrl">
-          <div class="ctrl-lbl"><span>Preserve Soft Glow</span><span class="ctrl-val" id="vPGlow">60%</span></div>
+          <div class="ctrl-lbl"><span><span data-t="lblPGlow">Preserve Soft Glow</span><button class="help-btn" onclick="showHelp('pGlow',this)">?</button></span><span class="ctrl-val" id="vPGlow">60%</span></div>
           <input type="range" id="rPGlow" min="0" max="100" value="60" oninput="syncSlider(this,'vPGlow','%'); onParamChange()">
         </div>
         <div class="ctrl">
-          <div class="ctrl-lbl"><span>Threshold</span><span class="ctrl-val" id="vGThr">0.2%</span></div>
+          <div class="ctrl-lbl"><span><span data-t="lblThreshold">Threshold</span><button class="help-btn" onclick="showHelp('gThr',this)">?</button></span><span class="ctrl-val" id="vGThr">0.2%</span></div>
           <input type="range" id="rGThr" min="0" max="100" step="1" value="2" oninput="syncSlider(this,'vGThr','%',0.1); onParamChange()">
         </div>
         <div class="ctrl">
-          <div class="ctrl-lbl"><span>Black Cleanup</span><span class="ctrl-val" id="vBlack">5</span></div>
+          <div class="ctrl-lbl"><span><span data-t="lblBlack">Black Cleanup</span><button class="help-btn" onclick="showHelp('black',this)">?</button></span><span class="ctrl-val" id="vBlack">5</span></div>
           <input type="range" id="rBlack" min="0" max="40" value="5" oninput="syncSlider(this,'vBlack',''); onParamChange()">
         </div>
       </div>
@@ -1107,19 +1199,16 @@ canvas {
     <!-- Preview toolbar -->
     <div class="preview-bar">
       <div class="pv-tabs">
-        <button class="pv-tab active" data-pv="grid" onclick="setPvMode('grid')">3-Panel</button>
-        <button class="pv-tab" data-pv="split" onclick="setPvMode('split')">Split</button>
-        <button class="pv-tab" data-pv="diff" onclick="setPvMode('diff')">Difference</button>
+        <button class="pv-tab active" data-pv="grid" onclick="setPvMode('grid')" data-t="tab3panel">3-Panel</button>
+        <button class="pv-tab" data-pv="split" onclick="setPvMode('split')" data-t="tabSplit">Split</button>
       </div>
       <div class="zoom-row">
-        <button class="zoom-btn" onclick="nudgeZoom(-0.2)">−</button>
-        <span class="zoom-lv" id="zoomLv">Fit</span>
-        <button class="zoom-btn" onclick="nudgeZoom(0.2)">+</button>
-        <div class="bar-sep" style="margin:0 2px"></div>
-        <button class="zoom-preset" onclick="setZoom('fit')">Fit</button>
-        <button class="zoom-preset" onclick="setZoom(1)">100</button>
-        <button class="zoom-preset" onclick="setZoom(2)">200</button>
-        <button class="zoom-preset" onclick="setZoom(4)">400</button>
+        <button class="zoom-btn" onclick="nudgeZoom(-0.1)">−</button>
+        <input class="zoom-num-input" id="zoomInput" value="Fit"
+               onchange="onZoomInput(this)"
+               onkeydown="if(event.key==='Enter')this.blur()"
+               onfocus="this.select()">
+        <button class="zoom-btn" onclick="nudgeZoom(0.1)">+</button>
       </div>
     </div>
 
@@ -1214,6 +1303,12 @@ canvas {
 
 </div><!-- /workspace -->
 
+<!-- Tooltip popup -->
+<div class="tooltip-popup" id="tooltipPopup">
+  <div class="tooltip-title" id="tooltipTitle"></div>
+  <div id="tooltipBody"></div>
+</div>
+
 <!-- Pixel Inspector -->
 <div class="pi" id="pixelInspector">
   <div class="pi-title">Pixel Inspector</div>
@@ -1227,6 +1322,102 @@ canvas {
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════
+// i18n
+// ═══════════════════════════════════════════════════════
+const LANG = {
+  en: {
+    reset: 'Reset', export: '↓ Export PNG',
+    tab3panel: '3-Panel', tabSplit: 'Split',
+    lblStrength: 'Strength', lblThreshold: 'Threshold', lblMatte: 'Matte Removal',
+    lblGStr: 'Strength', lblGamma: 'Alpha Gamma', lblPGlow: 'Preserve Soft Glow',
+    lblBlack: 'Black Cleanup',
+    ready: 'Ready', processing: 'Processing…', exported: 'Exported PNG', imageLoaded: 'Image loaded',
+    help: {
+      strength:  { title: 'Strength',           text: 'How strongly the effect is extracted. 100% = normal. Lower values fade the result; higher values boost it.' },
+      threshold: { title: 'Threshold',          text: 'Minimum alpha value. Pixels below this become fully transparent — useful for eliminating noise at edges.' },
+      matte:     { title: 'Matte Removal',      text: 'Removes dark halo artifacts that appear when the source was blended on a dark background. Increase if edges look muddy.' },
+      gStr:      { title: 'Strength',           text: 'Overall extraction intensity. 100% = full extraction. Lower values produce a softer, more transparent result.' },
+      gamma:     { title: 'Alpha Gamma',        text: 'Controls how quickly alpha fades away from bright areas. Lower values give softer, more gradual glow edges.' },
+      pGlow:     { title: 'Preserve Soft Glow', text: 'Blends between unpremultiplied colors (sharp, saturated) and original colors (soft, natural). Higher = softer glow feel.' },
+      gThr:      { title: 'Threshold',          text: 'Minimum alpha value for glow pixels. Helps cut dim noise from the glow edges.' },
+      black:     { title: 'Black Cleanup',      text: 'Cuts out near-black pixels — useful when the source had a pure black background with subtle imperfections.' },
+    }
+  },
+  ru: {
+    reset: 'Сброс', export: '↓ Экспорт PNG',
+    tab3panel: '3 панели', tabSplit: 'Разделить',
+    lblStrength: 'Сила', lblThreshold: 'Порог', lblMatte: 'Удаление матта',
+    lblGStr: 'Сила', lblGamma: 'Гамма альфа-канала', lblPGlow: 'Мягкое свечение',
+    lblBlack: 'Очистка чёрного',
+    ready: 'Готово', processing: 'Обработка…', exported: 'PNG экспортирован', imageLoaded: 'Изображение загружено',
+    help: {
+      strength:  { title: 'Сила',                   text: 'Интенсивность извлечения. 100% — стандартное извлечение. Уменьшите для прозрачности, увеличьте для усиления.' },
+      threshold: { title: 'Порог',                  text: 'Минимальное значение альфа. Пиксели ниже порога становятся прозрачными — помогает убрать шум по краям.' },
+      matte:     { title: 'Удаление матта',         text: 'Убирает тёмный ореол по краям при наложении на тёмный фон. Увеличьте, если края выглядят грязными.' },
+      gStr:      { title: 'Сила',                   text: 'Общая интенсивность извлечения. 100% — полное извлечение. Меньшие значения дают более прозрачный результат.' },
+      gamma:     { title: 'Гамма альфа-канала',     text: 'Управляет скоростью затухания альфа-канала. Меньшие значения — более плавные, мягкие края свечения.' },
+      pGlow:     { title: 'Мягкое свечение',        text: 'Смешивает чистые (резкие, насыщенные) и оригинальные (мягкие) цвета. Выше = естественнее свечение.' },
+      gThr:      { title: 'Порог',                  text: 'Минимальное значение альфа для пикселей свечения. Убирает тусклый шум по краям.' },
+      black:     { title: 'Очистка чёрного',        text: 'Удаляет почти чёрные пиксели — полезно, когда источник имел чёрный фон с небольшими артефактами.' },
+    }
+  }
+};
+
+let currentLang = 'en';
+
+function T(key) { return (LANG[currentLang][key] || LANG.en[key]) ?? key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.textContent.trim() === lang.toUpperCase())
+  );
+  applyTranslations();
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const v = T(el.dataset.t);
+    if (typeof v === 'string') el.textContent = v;
+  });
+  document.getElementById('btnReset').textContent = T('reset');
+  // Update export button — keep the arrow
+  document.getElementById('exportBtn').textContent = T('export');
+}
+
+// ═══════════════════════════════════════════════════════
+// TOOLTIP
+// ═══════════════════════════════════════════════════════
+let _tooltipKey = null;
+
+function showHelp(key, btn) {
+  const popup = document.getElementById('tooltipPopup');
+  if (_tooltipKey === key) {
+    popup.classList.remove('visible');
+    _tooltipKey = null;
+    return;
+  }
+  const data = (LANG[currentLang].help || {})[key] || LANG.en.help[key];
+  if (!data) return;
+  document.getElementById('tooltipTitle').textContent = data.title;
+  document.getElementById('tooltipBody').textContent = data.text;
+  const rc = btn.getBoundingClientRect();
+  const left = Math.min(rc.right + 10, window.innerWidth - 250);
+  const top  = Math.max(rc.top - 10, 8);
+  popup.style.left = left + 'px';
+  popup.style.top  = top  + 'px';
+  popup.classList.add('visible');
+  _tooltipKey = key;
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.classList.contains('help-btn')) {
+    document.getElementById('tooltipPopup').classList.remove('visible');
+    _tooltipKey = null;
+  }
+});
+
 // ═══════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════
@@ -1895,11 +2086,12 @@ function drawPreviews() {
 // PREVIEW MODE / BG
 // ═══════════════════════════════════════════════════════
 function setPvMode(m) {
+  if (m === 'diff') m = 'grid'; // Difference mode removed
   S.pvMode = m;
   document.querySelectorAll('.pv-tab').forEach(t => t.classList.toggle('active', t.dataset.pv === m));
   document.getElementById('gridView').style.display   = m==='grid'  ? 'flex'  : 'none';
   document.getElementById('splitView').style.display  = m==='split' ? 'block' : 'none';
-  document.getElementById('diffView').style.display   = m==='diff'  ? 'flex'  : 'none';
+  document.getElementById('diffView').style.display   = 'none';
   drawPreviews();
 }
 
@@ -1912,15 +2104,22 @@ function setPvBg(bg, btn) { // legacy, kept for safety
 // ═══════════════════════════════════════════════════════
 function setZoom(z) {
   S.zoom = z;
-  const lv = document.getElementById('zoomLv');
-  if (z === 'fit') lv.textContent = 'Fit';
-  else lv.textContent = Math.round(z*100) + '%';
+  const inp = document.getElementById('zoomInput');
+  if (inp) inp.value = z === 'fit' ? 'Fit' : Math.round(z * 100) + '%';
   drawPreviews();
 }
 
 function nudgeZoom(d) {
   const cur = S.zoom === 'fit' ? 1 : S.zoom;
-  setZoom(Math.max(0.1, Math.min(8, parseFloat((cur+d).toFixed(2)))));
+  setZoom(Math.max(0.05, Math.min(8, parseFloat((cur + d).toFixed(2)))));
+}
+
+function onZoomInput(el) {
+  const raw = el.value.trim().replace('%', '');
+  if (raw.toLowerCase() === 'fit' || raw === '') { setZoom('fit'); return; }
+  const n = parseFloat(raw);
+  if (!isNaN(n) && n > 0) setZoom(Math.max(5, Math.min(800, n)) / 100);
+  else el.value = S.zoom === 'fit' ? 'Fit' : Math.round(S.zoom * 100) + '%';
 }
 
 document.getElementById('pvArea').addEventListener('wheel', e => {
